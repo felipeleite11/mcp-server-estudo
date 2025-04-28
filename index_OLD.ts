@@ -5,27 +5,6 @@ import { z } from 'zod'
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 
-interface CEPResultProps {
-	city: '',
-	state: '',
-	neighborhood: '',
-	street: ''
-}
-
-interface CNPJProps {
-	descricao_situacao_cadastral: string
-	razao_social: string
-}
-
-interface HolidayProps {
-	date: string
-	name: string
-}
-
-interface CityProps {
-	nome: string
-}
-
 const api = axios.create({
 	baseURL: 'https://brasilapi.com.br/api'
 })
@@ -46,7 +25,7 @@ server.tool(
 		zipcode: z.string()
 	},
 	async ({ zipcode }) => {
-		const { data } = await api.get<CEPResultProps>(`/cep/v1/${zipcode}`)
+		const { data } = await api.get(`/cep/v1/${zipcode}`)
 
 		return {
 			content: [{
@@ -66,7 +45,7 @@ server.tool(
 	async ({ cnpj }) => {
 		const numbers = cnpj.match(/\d+/g)?.join('')
 
-		const { data } = await api.get<CNPJProps>(`/cnpj/v1/${numbers}`)
+		const { data } = await api.get(`/cnpj/v1/${numbers}`)
 
 		return {
 			content: [{
@@ -84,7 +63,7 @@ server.tool(
 		year: z.number().min(1900).max(3000)
 	},
 	async ({ year }) => {
-		const { data } = await api.get<HolidayProps>(`/feriados/v1/${year}`)
+		const { data } = await api.get(`/feriados/v1/${year}`)
 
 		return {
 			content: [{
@@ -102,7 +81,7 @@ server.tool(
 		uf: z.string().length(2)
 	},
 	async ({ uf }) => {
-		const { data } = await api.get<CityProps>(`/ibge/municipios/v1/${uf}?providers=dados-abertos-br,gov,wikipedia`)
+		const { data } = await api.get(`/ibge/municipios/v1/${uf}?providers=dados-abertos-br,gov,wikipedia`)
 
 		return {
 			content: [{
@@ -116,7 +95,7 @@ server.tool(
 async function main() {
 	const transport = new StdioServerTransport();
 
-	await server.connect(transport)
+	await server.connect(transport);
 }
 
 main().catch(e => {
