@@ -4,6 +4,7 @@ import axios from 'axios'
 import { z } from 'zod'
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
+// import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js"
 
 interface CEPResultProps {
 	city: '',
@@ -84,12 +85,14 @@ server.tool(
 		year: z.number().min(1900).max(3000)
 	},
 	async ({ year }) => {
-		const { data } = await api.get<HolidayProps>(`/feriados/v1/${year}`)
+		const { data } = await api.get<HolidayProps[]>(`/feriados/v1/${year}`)
+
+		const output = data.map(item => `${item.date} - ${item.name}`).join('\n')
 
 		return {
 			content: [{
 				type: 'text',
-				text: `${data.date} - ${data.name}`
+				text: output
 			}]
 		}
 	}
@@ -114,7 +117,7 @@ server.tool(
 )
 
 async function main() {
-	const transport = new StdioServerTransport();
+	const transport = new StdioServerTransport()
 
 	await server.connect(transport)
 }

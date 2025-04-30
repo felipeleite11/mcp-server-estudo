@@ -46,10 +46,11 @@ server.tool("holidays", "Tool to get Brasil's holiday list by year.", {
     year: zod_1.z.number().min(1900).max(3000)
 }, async ({ year }) => {
     const { data } = await api.get(`/feriados/v1/${year}`);
+    const output = data.map(item => `${item.date} - ${item.name}`).join('\n');
     return {
         content: [{
                 type: 'text',
-                text: `${data.date} - ${data.name}`
+                text: output
             }]
     };
 });
